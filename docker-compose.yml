@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  streaming-server:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${SERVER_IP}:1935:1935"  # RTMP
+      - "${SERVER_IP}:8080:8080"  # HLS
+      - "${SERVER_IP}:3000:3000"  # Admin Panel
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-streamadmin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SERVER_IP=${SERVER_IP}
+    volumes:
+      - streaming_data:/opt/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "streamadmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - streaming_net
+
+networks:
+  streaming_net:
+    driver: bridge
+
+volumes:
+  streaming_data:
+    driver: local
+  postgres_data:
+    driver: local 
