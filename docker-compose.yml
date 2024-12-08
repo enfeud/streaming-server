@@ -5,9 +5,18 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "${SERVER_IP}:1935:1935"  # RTMP
-      - "${SERVER_IP}:8080:8080"  # HLS
-      - "${SERVER_IP}:3000:3000"  # Admin Panel
+      - target: 1935
+        published: 1935
+        protocol: tcp
+        host_ip: ${SERVER_IP}
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        host_ip: ${SERVER_IP}
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        host_ip: ${SERVER_IP}
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-streamadmin}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
